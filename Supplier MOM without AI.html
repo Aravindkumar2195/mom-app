@@ -1,0 +1,1039 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supplier Visit MoM Generator (All-in-One)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- Custom Styles --- */
+        :root {
+            --dial-progress-angle: 0deg;
+            --dial-bg-color: #e5e7eb;
+            --dial-progress-color: #6b7280;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* --- Card Styles --- */
+        .card {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: box-shadow 0.3s ease;
+        }
+        .card:focus-within {
+             box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.1);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #1f2937;
+        }
+
+        /* --- Form Styles --- */
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #374151;
+            font-size: 0.875rem;
+        }
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 0.6rem 0.8rem;
+            border: 1px solid #D1D5DB;
+            border-radius: 0.5rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-size: 0.875rem;
+            background-color: #f9fafb;
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+            background-color: white;
+        }
+        .form-input[type="file"] {
+            font-size: 0.8rem;
+            padding: 0.5rem;
+        }
+
+        /* --- Button Styles --- */
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            gap: 0.5rem;
+            border: none;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .btn:active {
+            transform: translateY(0px) scale(0.98);
+            box-shadow: none;
+        }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .btn-primary { background-color: #3B82F6; color: white; }
+        .btn-primary:hover:not(:disabled) { background-color: #2563EB; }
+        .btn-secondary { background-color: #f3f4f6; color: #4b5563; border: 1px solid #d1d5db; }
+        .btn-secondary:hover:not(:disabled) { background-color: #e5e7eb; }
+        .btn-danger { background-color: #FEE2E2; color: #DC2626; }
+        .btn-danger:hover:not(:disabled) { background-color: #FECACA; color: #B91C1C; }
+        .btn-ai { background-color: #8B5CF6; color: white; }
+        .btn-ai:hover:not(:disabled) { background-color: #7C3AED; }
+
+        .icon {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+
+        /* --- Spinner Animation --- */
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* --- Preview Pane Styles --- */
+        .preview-pane {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            height: fit-content;
+        }
+        .preview-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .preview-body {
+            padding: 1.5rem;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            color: #4b5563;
+        }
+        .preview-body h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .preview-body p {
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .preview-body .italic {
+            color: #9ca3af;
+        }
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .preview-table th, .preview-table td {
+            text-align: left;
+            padding: 0.5rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .preview-table th {
+            background-color: #f9fafb;
+            font-weight: 600;
+            color: #374151;
+        }
+        .status-badge {
+            padding: 0.2rem 0.6rem;
+            border-radius: 9999px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: white;
+            display: inline-block;
+        }
+
+        /* --- Image Upload & Preview --- */
+        .image-preview-container {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-top: 0.75rem;
+        }
+        .image-preview-item {
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+        .image-preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 0.375rem;
+            border: 1px solid #e5e7eb;
+            cursor: pointer;
+        }
+        .remove-image-btn {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background-color: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        /* --- Lightbox Modal --- */
+        #lightbox-modal {
+            transition: opacity 0.3s ease;
+        }
+        #lightbox-modal.hidden {
+            display: none;
+        }
+        #lightbox-modal:not(.hidden) {
+            display: flex;
+        }
+        #lightbox-image {
+            border-radius: 0.5rem;
+        }
+        #lightbox-close {
+            transition: transform 0.2s ease;
+        }
+        #lightbox-close:hover {
+            transform: scale(1.1);
+        }
+
+        /* --- Dial Gauge Styles --- */
+        .dial-gauge-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .dial-gauge {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: conic-gradient(var(--dial-progress-color) var(--dial-progress-angle), var(--dial-bg-color) 0deg);
+        }
+        .dial-gauge::before {
+            content: '';
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            background: white;
+            border-radius: 50%;
+        }
+        .dial-gauge-text {
+            z-index: 10;
+            text-align: center;
+        }
+        .dial-gauge-score {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        .dial-gauge-caption {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #4b5563;
+        }
+    </style>
+</head>
+<body class="bg-slate-100">
+
+    <div class="max-w-7xl mx-auto p-4 md:p-8">
+        <header class="text-center mb-10">
+            <h1 class="text-4xl font-bold text-slate-800">Supplier Visit MoM</h1>
+            <p class="text-slate-600 mt-2">Professional Report Generator with Image Support</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+            
+            <!-- Left Column: Input Form -->
+            <div id="form-container" class="space-y-6">
+                <!-- Meeting Details Card -->
+                <div class="card">
+                    <h2 class="card-title">1. Meeting & Supplier Details</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="supplierName" class="form-label">Supplier Name</label>
+                            <input type="text" id="supplierName" class="form-input" placeholder="e.g., ABC Components">
+                        </div>
+                        <div>
+                            <label for="supplierCode" class="form-label">Supplier Code</label>
+                            <input type="text" id="supplierCode" class="form-input" placeholder="e.g., S01234">
+                        </div>
+                        <div>
+                            <label for="date" class="form-label">Date</label>
+                            <input type="date" id="date" class="form-input">
+                        </div>
+                        <div>
+                            <label for="time" class="form-label">Time</label>
+                            <input type="time" id="time" class="form-input">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="location" class="form-label">Location</label>
+                            <input type="text" id="location" class="form-input" placeholder="e.g., Supplier Factory, Building A">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="purpose" class="form-label">Purpose of Visit</label>
+                            <input type="text" id="purpose" class="form-input" placeholder="e.g., Quarterly Quality Audit">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Scorecard Card -->
+                <div class="card">
+                    <h2 class="card-title">2. Supplier Performance Scorecard</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="scoreField" class="form-label">Field Performance (200)</label>
+                            <input type="number" id="scoreField" class="form-input" placeholder="Score" min="0" max="200">
+                        </div>
+                        <div>
+                            <label for="scoreChannel" class="form-label">Channel Management (200)</label>
+                            <input type="number" id="scoreChannel" class="form-input" placeholder="Score" min="0" max="200">
+                        </div>
+                        <div>
+                            <label for="scoreDelivery" class="form-label">Delivery & Capability (100)</label>
+                            <input type="number" id="scoreDelivery" class="form-input" placeholder="Score" min="0" max="100">
+                        </div>
+                        <div>
+                            <label for="scoreNpd" class="form-label">NPD Performance (100)</label>
+                            <input type="number" id="scoreNpd" class="form-input" placeholder="Score" min="0" max="100">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Attendees Card -->
+                <div class="card">
+                    <h2 class="card-title">3. Attendees</h2>
+                    <div id="attendees-list" class="space-y-4"></div>
+                    <button id="add-attendee" class="btn btn-secondary mt-4 w-full md:w-auto">
+                        <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                        Add Attendee
+                    </button>
+                </div>
+
+                <!-- Observations Card -->
+                <div class="card">
+                    <h2 class="card-title">4. Observations & Action Plan</h2>
+                    <div id="observations-list" class="space-y-6"></div>
+                    <button id="add-observation" class="btn btn-secondary mt-6 w-full md:w-auto">
+                         <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                        Add Observation
+                    </button>
+                </div>
+                
+                <!-- Summary & Notes Card -->
+                 <div class="card">
+                    <h2 class="card-title">5. Summary & Notes</h2>
+                     <div>
+                         <label class="form-label">Summary</label>
+                        <div class="flex items-center gap-3 mb-4">
+                            <textarea id="summary" class="form-textarea flex-grow" rows="4" placeholder="Add observations and click 'Generate' to create a summary."></textarea>
+                             <button id="generate-summary" class="btn btn-ai self-start">
+                                <span class="btn-text">Generate</span>
+                                <div class="spinner hidden"></div>
+                            </button>
+                        </div>
+                     </div>
+                     <div>
+                         <label for="notes" class="form-label">Additional Notes</label>
+                        <textarea id="notes" class="form-textarea" rows="3" placeholder="Add any other relevant information..."></textarea>
+                     </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Live Preview & Export -->
+            <div class="sticky top-8">
+                 <div class="preview-pane">
+                    <div class="preview-header">
+                        <h2 class="text-xl font-semibold text-gray-800">Report Preview</h2>
+                        <button id="generate-pdf" class="btn btn-primary">
+                             <svg class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                            <span class="btn-text">Export to PDF</span>
+                            <div class="spinner hidden"></div>
+                        </button>
+                    </div>
+                    <div class="preview-body" id="live-preview">
+                        <!-- Preview content will be injected by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Image Lightbox Modal -->
+    <div id="lightbox-modal" class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center p-4 z-50">
+        <div class="max-w-4xl max-h-full">
+            <img id="lightbox-image" src="" alt="Enlarged observation image" class="max-w-full max-h-full object-contain">
+        </div>
+        <button id="lightbox-close" class="absolute top-4 right-4 text-white text-4xl">&times;</button>
+    </div>
+
+
+    <!-- jsPDF Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
+    
+    <!-- Application Logic -->
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // --- CONFIGURATION ---
+        const GEMINI_API_KEY = "IzaSyDag-lkeHqMizpvmcuDFgLLt9NExXDzWaY";
+        const LOCAL_STORAGE_KEY = 'supplierVisitMoMState_v2';
+
+        // --- STATE MANAGEMENT ---
+        let appState = {
+            details: {},
+            performance: {},
+            attendees: [],
+            observations: [],
+            notes: {}
+        };
+        let nextAttendeeId = 0;
+        let nextObservationId = 0;
+
+        // --- DOM ELEMENTS ---
+        const formContainer = document.getElementById('form-container');
+        const attendeesList = document.getElementById('attendees-list');
+        const observationsList = document.getElementById('observations-list');
+        const addAttendeeBtn = document.getElementById('add-attendee');
+        const addObservationBtn = document.getElementById('add-observation');
+        const generatePdfBtn = document.getElementById('generate-pdf');
+        const generateSummaryBtn = document.getElementById('generate-summary');
+        const livePreviewEl = document.getElementById('live-preview');
+        const lightboxModal = document.getElementById('lightbox-modal');
+        const lightboxImage = document.getElementById('lightbox-image');
+        const lightboxClose = document.getElementById('lightbox-close');
+
+        // --- INITIALIZATION ---
+        function init() {
+            loadStateFromLocalStorage();
+            
+            formContainer.addEventListener('input', debounce(updateStateAndPreview, 300));
+            addAttendeeBtn.addEventListener('click', handleAddAttendee);
+            addObservationBtn.addEventListener('click', handleAddObservation);
+            
+            // Delegated event listeners for dynamic content
+            attendeesList.addEventListener('click', handleRemoveItem);
+            observationsList.addEventListener('click', e => {
+                if (e.target.closest('.remove-item')) handleRemoveItem(e);
+                if (e.target.closest('.remove-image-btn')) handleRemoveImage(e);
+            });
+            observationsList.addEventListener('change', e => {
+                if (e.target.matches('.image-input')) handleImageUpload(e);
+            });
+            livePreviewEl.addEventListener('click', e => {
+                if (e.target.matches('.preview-image')) handleImageClick(e);
+            });
+
+            lightboxClose.addEventListener('click', () => lightboxModal.classList.add('hidden'));
+            lightboxModal.addEventListener('click', (e) => {
+                if (e.target === lightboxModal) lightboxModal.classList.add('hidden');
+            });
+
+            generateSummaryBtn.addEventListener('click', (e) => handleAISummary(e.currentTarget));
+            generatePdfBtn.addEventListener('click', (e) => handleGeneratePdf(e.currentTarget));
+
+            rebuildFormFromState();
+            updateStateAndPreview();
+        }
+
+        // --- STATE & LOCAL STORAGE ---
+        function saveStateToLocalStorage() {
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(appState));
+        }
+
+        function loadStateFromLocalStorage() {
+            const savedState = localStorage.getItem(LOCAL_STORAGE_KEY);
+            if (savedState) {
+                appState = JSON.parse(savedState);
+                // Ensure nested objects exist
+                appState.details = appState.details || {};
+                appState.performance = appState.performance || {};
+                appState.notes = appState.notes || {};
+                appState.attendees = appState.attendees || [];
+                appState.observations = appState.observations || [];
+
+                nextAttendeeId = appState.attendees.length ? Math.max(...appState.attendees.map(a => a.id)) + 1 : 0;
+                nextObservationId = appState.observations.length ? Math.max(...appState.observations.map(o => o.id)) + 1 : 0;
+            } else {
+                const now = new Date();
+                const dateString = now.getFullYear() + '-' + ('0' + (now.getMonth() + 1)).slice(-2) + '-' + ('0' + now.getDate()).slice(-2);
+                appState.details.date = dateString;
+                appState.details.time = now.toTimeString().split(' ')[0].substring(0, 5);
+            }
+        }
+        
+        function rebuildFormFromState() {
+            Object.keys(appState.details).forEach(key => {
+                const el = document.getElementById(key);
+                if (el) el.value = appState.details[key];
+            });
+            Object.keys(appState.performance).forEach(key => {
+                const el = document.getElementById(key);
+                if (el) el.value = appState.performance[key];
+            });
+            Object.keys(appState.notes).forEach(key => {
+                const el = document.getElementById(key);
+                if (el) el.value = appState.notes[key];
+            });
+            appState.attendees.forEach(attendee => attendeesList.insertAdjacentHTML('beforeend', createAttendeeHTML(attendee.id)));
+            appState.observations.forEach(obs => observationsList.insertAdjacentHTML('beforeend', createObservationHTML(obs.id)));
+        }
+
+        // --- EVENT HANDLERS & LOGIC ---
+        function updateStateAndPreview() {
+            const oldSupplierName = appState.details.supplierName;
+            
+            appState.details = {
+                supplierName: document.getElementById('supplierName').value,
+                supplierCode: document.getElementById('supplierCode').value,
+                date: document.getElementById('date').value,
+                time: document.getElementById('time').value,
+                location: document.getElementById('location').value,
+                purpose: document.getElementById('purpose').value,
+            };
+            appState.performance = {
+                scoreField: document.getElementById('scoreField').value,
+                scoreChannel: document.getElementById('scoreChannel').value,
+                scoreDelivery: document.getElementById('scoreDelivery').value,
+                scoreNpd: document.getElementById('scoreNpd').value,
+            };
+            appState.notes = {
+                summary: document.getElementById('summary').value,
+                notes: document.getElementById('notes').value,
+            };
+            appState.attendees = Array.from(attendeesList.children).map(div => ({
+                id: parseInt(div.dataset.id),
+                name: div.querySelector('[data-field="name"]').value,
+                designation: div.querySelector('[data-field="designation"]').value,
+                side: div.querySelector('[data-field="side"]').value,
+            }));
+            const existingObservations = appState.observations.reduce((acc, obs) => ({...acc, [obs.id]: obs }), {});
+            appState.observations = Array.from(observationsList.children).map(div => {
+                const id = parseInt(div.dataset.id);
+                return {
+                    id: id, problem: div.querySelector('[data-field="problem"]').value, observation: div.querySelector('[data-field="observation"]').value,
+                    action: div.querySelector('[data-field="action"]').value, responsibility: div.querySelector('[data-field="responsibility"]').value,
+                    targetDate: div.querySelector('[data-field="targetDate"]').value, status: div.querySelector('[data-field="status"]').value,
+                    images: existingObservations[id]?.images || [],
+                };
+            });
+            
+            if (oldSupplierName !== appState.details.supplierName) {
+                updateAttendeeSideOptions();
+            }
+
+            renderPreview();
+            saveStateToLocalStorage();
+        }
+
+        function handleAddAttendee() {
+            const id = nextAttendeeId++;
+            appState.attendees.push({ id, name: '', designation: '', side: 'Ashok Leyland' });
+            attendeesList.insertAdjacentHTML('beforeend', createAttendeeHTML(id));
+            updateStateAndPreview();
+        }
+
+        function handleAddObservation() {
+            const id = nextObservationId++;
+            appState.observations.push({ id, problem: '', observation: '', action: '', responsibility: '', targetDate: '', status: 'Yellow', images: [] });
+            observationsList.insertAdjacentHTML('beforeend', createObservationHTML(id));
+            updateStateAndPreview();
+        }
+        
+        function handleRemoveItem(e) {
+            const removeButton = e.target.closest('.remove-item');
+            if (removeButton) {
+                document.getElementById(removeButton.dataset.id).remove();
+                updateStateAndPreview();
+            }
+        }
+
+        function updateAttendeeSideOptions() {
+            const supplierName = appState.details.supplierName || 'Supplier';
+            document.querySelectorAll('#attendees-list select[data-field="side"]').forEach(select => {
+                const currentValue = select.value;
+                select.innerHTML = `
+                    <option value="Ashok Leyland">Ashok Leyland</option>
+                    <option value="${supplierName}">${supplierName}</option>
+                `;
+                if (currentValue === 'Ashok Leyland' || currentValue === supplierName) {
+                    select.value = currentValue;
+                } else {
+                     select.value = supplierName;
+                }
+            });
+        }
+
+        // --- IMAGE HANDLING ---
+        async function handleImageUpload(e) {
+            const input = e.target;
+            const obsId = parseInt(input.dataset.id);
+            const files = Array.from(input.files);
+            if (!files.length) return;
+            const observation = appState.observations.find(o => o.id === obsId);
+            if (!observation) return;
+            for (const file of files) {
+                const base64String = await fileToBase64(file);
+                observation.images.push({ name: file.name, data: base64String });
+            }
+            updateStateAndPreview();
+        }
+
+        function handleRemoveImage(e) {
+            const button = e.target.closest('.remove-image-btn');
+            const obsId = parseInt(button.dataset.obsId);
+            const imageName = button.dataset.imageName;
+            const observation = appState.observations.find(o => o.id === obsId);
+            if (observation) {
+                observation.images = observation.images.filter(img => img.name !== imageName);
+            }
+            updateStateAndPreview();
+        }
+
+        function handleImageClick(e) {
+            lightboxImage.src = e.target.src;
+            lightboxModal.classList.remove('hidden');
+        }
+
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        // --- LIVE PREVIEW ---
+        function renderPreview() {
+            const { details, performance, notes, attendees, observations } = appState;
+            
+            const totalScore = (parseInt(performance.scoreField) || 0) + (parseInt(performance.scoreChannel) || 0) +
+                               (parseInt(performance.scoreDelivery) || 0) + (parseInt(performance.scoreNpd) || 0);
+
+            let scoreInfo = {};
+            if (totalScore > 549) scoreInfo = { caption: 'High Performer', color: '#10B981' };
+            else if (totalScore > 399) scoreInfo = { caption: 'Moderate Performer', color: '#F59E0B' };
+            else if (totalScore > 299) scoreInfo = { caption: 'Low Performer', color: '#3B82F6' };
+            else scoreInfo = { caption: 'Poor Performer', color: '#EF4444' };
+            
+            const scorePercentage = totalScore / 600;
+            const angle = scorePercentage * 360;
+
+            const gaugeHTML = `
+                <div class="dial-gauge-container">
+                    <div class="dial-gauge" style="--dial-progress-angle:${angle}deg; --dial-progress-color:${scoreInfo.color};">
+                        <div class="dial-gauge-text">
+                            <div class="dial-gauge-score">${totalScore}</div>
+                            <div class="dial-gauge-caption" style="color:${scoreInfo.color};">${scoreInfo.caption}</div>
+                        </div>
+                    </div>
+                </div>`;
+            
+            livePreviewEl.innerHTML = `
+                <div class="text-center mb-6">
+                    <h1 class="text-2xl font-bold text-gray-900">Minutes of Meeting</h1>
+                    <p>${details.purpose || 'Purpose of the visit will appear here.'}</p>
+                </div>
+                <section class="mb-6"><h3>Supplier Performance</h3>${gaugeHTML}</section>
+            ` + renderPreviewSections();
+        }
+
+        function renderPreviewSections() {
+             const { details, attendees, observations, notes } = appState;
+             const validAttendees = attendees.filter(a => a.name.trim());
+             const validObservations = observations.filter(o => o.problem.trim() || o.observation.trim());
+             let attendeesHTML = `<p class="italic">Attendees will be listed here.</p>`;
+             if (validAttendees.length > 0) {
+                 attendeesHTML = `<table class="preview-table"><thead><tr><th>Name</th><th>Designation</th><th>Side</th></tr></thead><tbody>
+                     ${validAttendees.map(a => `<tr><td>${a.name}</td><td>${a.designation}</td><td>${a.side}</td></tr>`).join('')}
+                 </tbody></table>`;
+             }
+             let observationsHTML = `<p class="italic">Observation points will appear here.</p>`;
+             if (validObservations.length > 0) {
+                 observationsHTML = '<div class="space-y-4">';
+                 validObservations.forEach((o, index) => {
+                     const statusColor = { Green: '#10B981', Yellow: '#F59E0B', Red: '#EF4444'}[o.status] || '#6B7280';
+                     const imagesHTML = o.images.length > 0 ? `<p><strong>Attachments:</strong></p><div class="flex gap-2 flex-wrap mt-2">${o.images.map(img => `<img src="${img.data}" alt="${img.name}" class="w-16 h-16 object-cover rounded border preview-image cursor-pointer">`).join('')}</div>` : '';
+                     observationsHTML += `<div class="border-t pt-3"><h4 class="font-semibold text-gray-800 mb-2">Observation Point #${index + 1}</h4><p><strong>Problem:</strong> ${o.problem || 'N/A'}</p><p><strong>Observation:</strong> ${o.observation || 'N/A'}</p><p><strong>Action Taken:</strong> ${o.action || 'N/A'}</p><div class="mt-2 grid grid-cols-3 gap-2 text-xs"><div><strong>Responsibility:</strong><br>${o.responsibility || 'N/A'}</div><div><strong>Target Date:</strong><br>${o.targetDate || 'N/A'}</div><div><strong>Status:</strong><br><span class="status-badge" style="background-color:${statusColor}">${o.status}</span></div></div>${imagesHTML}</div>`;
+                 });
+                 observationsHTML += '</div>';
+             }
+             return `
+                 <section class="mb-6">
+                    <h3>Meeting & Supplier Details</h3>
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-2">
+                        <div><strong>Supplier:</strong> ${details.supplierName || 'N/A'}</div>
+                        <div><strong>Code:</strong> ${details.supplierCode || 'N/A'}</div>
+                        <div><strong>Date:</strong> ${details.date || 'N/A'}</div>
+                        <div><strong>Time:</strong> ${details.time || 'N/A'}</div>
+                        <div class="col-span-2"><strong>Location:</strong> ${details.location || 'N/A'}</div>
+                    </div>
+                </section>
+                <section class="mb-6"><h3>Attendees</h3>${attendeesHTML}</section>
+                <section class="mb-6"><h3>Observations & Action Plan</h3>${observationsHTML}</section>
+                <section class="mb-6"><h3>Summary</h3><p class="${!notes.summary && 'italic'}">${notes.summary || 'AI-generated summary will appear here.'}</p></section>
+                <section><h3>Additional Notes</h3><p class="${!notes.notes && 'italic'}">${notes.notes || 'Additional notes will appear here.'}</p></section>
+             `;
+        }
+
+        // --- HTML TEMPLATES ---
+        const createAttendeeHTML = (id) => {
+            const attendee = appState.attendees.find(a=>a.id===id) || {};
+            const supplierName = appState.details.supplierName || 'Supplier';
+            const sides = ['Ashok Leyland', supplierName];
+            return `
+            <div id="attendee-${id}" data-id="${id}" class="grid grid-cols-1 md:grid-cols-8 gap-2 items-end border-t pt-4">
+                <div class="md:col-span-3"><label class="form-label">Name</label><input type="text" data-field="name" class="form-input" placeholder="John Doe" value="${attendee.name || ''}"></div>
+                <div class="md:col-span-3"><label class="form-label">Designation</label><input type="text" data-field="designation" class="form-input" placeholder="Quality Manager" value="${attendee.designation || ''}"></div>
+                <div class="md:col-span-1"><label class="form-label">Side</label><select data-field="side" class="form-select">${sides.map(s => `<option value="${s}" ${attendee.side === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div>
+                <div class="md:col-span-1"><button class="btn btn-danger w-full remove-item" data-id="attendee-${id}" aria-label="Remove Attendee"><svg class="icon mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></div>
+            </div>`;
+        }
+
+        const createObservationHTML = (id) => {
+            const obs = appState.observations.find(o => o.id === id) || {};
+            const imagesHTML = (obs.images || []).map(img => `<div class="image-preview-item"><img src="${img.data}" alt="${img.name}" class="preview-image cursor-pointer"><button class="remove-image-btn" data-obs-id="${id}" data-image-name="${img.name}">&times;</button></div>`).join('');
+            return `
+            <div id="observation-${id}" data-id="${id}" class="border-t-2 border-slate-200 pt-6">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="font-semibold text-lg text-slate-600">Observation Point</h3>
+                    <button class="btn btn-danger text-xs remove-item" data-id="observation-${id}" aria-label="Remove Observation">Remove Point</button>
+                </div>
+                <div class="space-y-4">
+                    <div><label class="form-label">Problem</label><textarea data-field="problem" class="form-textarea" rows="2" placeholder="e.g., Contamination found on part XYZ.">${obs.problem || ''}</textarea></div>
+                    <div><label class="form-label">Observation Details</label><textarea data-field="observation" class="form-textarea" rows="3" placeholder="e.g., Oil residue observed on 5 out of 10 samples...">${obs.observation || ''}</textarea></div>
+                    <div><label class="form-label">Action Plan</label><textarea data-field="action" class="form-textarea" rows="2" placeholder="e.g., Quarantine affected stock, start root cause analysis...">${obs.action || ''}</textarea></div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div><label class="form-label">Responsibility (Owner)</label><input type="text" data-field="responsibility" class="form-input" placeholder="e.g., Supplier QA" value="${obs.responsibility || ''}"></div>
+                        <div><label class="form-label">Target Date</label><input type="date" data-field="targetDate" class="form-input" value="${obs.targetDate || ''}"></div>
+                        <div><label class="form-label">Status</label><select data-field="status" class="form-select">${['Green', 'Yellow', 'Red'].map(s => `<option ${obs.status === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div>
+                    </div>
+                    <div><label class="form-label">Attach Images</label><input type="file" multiple accept="image/*" class="form-input image-input" data-id="${id}"><div class="image-preview-container">${imagesHTML}</div></div>
+                </div>
+            </div>`;
+        }
+        
+        // --- AI & PDF LOGIC ---
+        function toggleButtonLoading(button, isLoading) {
+            const text = button.querySelector('.btn-text');
+            const spinner = button.querySelector('.spinner');
+            button.disabled = isLoading;
+            if (text) text.style.display = isLoading ? 'none' : 'inline-flex';
+            if (spinner) spinner.style.display = isLoading ? 'block' : 'none';
+        }
+
+        async function handleAISummary(button) {
+            const observationText = appState.observations.map(o => `Problem: ${o.problem}\nObservation: ${o.observation}\nAction: ${o.action}`).join('\n\n---\n\n');
+            if (!observationText.trim()) { alert('Please fill in some observations before generating a summary.'); return; }
+            toggleButtonLoading(button, true);
+            try {
+                const systemPrompt = "You are an expert at summarizing business reports. Read the provided minutes from a supplier visit and generate a professional, single-paragraph executive summary of the key findings, problems identified, and critical action items.";
+                const result = await callGeminiAPI(systemPrompt, `Summarize the following meeting points:\n\n${observationText}`);
+                if(result) {
+                    document.getElementById('summary').value = result;
+                    updateStateAndPreview();
+                }
+            } finally { toggleButtonLoading(button, false); }
+        }
+
+        async function callGeminiAPI(systemPrompt, userPrompt) {
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
+            const payload = { systemInstruction: { parts: [{ text: systemPrompt }] }, contents: [{ parts: [{ text: userPrompt }] }], };
+            try {
+                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                if (!response.ok) throw new Error(`API error: ${response.status} ${response.statusText}`);
+                const result = await response.json();
+                return result.candidates?.[0]?.content?.parts?.[0]?.text || '';
+            } catch (error) {
+                console.error("Gemini API call failed:", error);
+                alert("AI Assistant Error: " + error.message);
+                return null;
+            }
+        }
+        
+        async function handleGeneratePdf(button) {
+            toggleButtonLoading(button, true);
+            await new Promise(resolve => setTimeout(resolve, 50));
+            try {
+                await generatePDF();
+            } catch (error) {
+                console.error("Failed to generate PDF:", error);
+                alert("An error occurred while generating the PDF. Check the console for details.");
+            } finally {
+                toggleButtonLoading(button, false);
+            }
+        }
+
+        async function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+            const { details, performance, attendees, observations, notes } = appState;
+            
+            const primaryColor = [44, 62, 80];
+            const secondaryColor = [52, 152, 219];
+            const lightGrayColor = [248, 249, 250];
+            const grayColor = [189, 195, 199];
+            const fontColor = [44, 62, 80];
+            const pageMargin = 15;
+            const pageWidth = doc.internal.pageSize.getWidth();
+            let yPos = 0;
+
+            doc.setFont('helvetica', 'sans-serif');
+
+            const addHeaderFooter = () => {
+                const pageCount = doc.internal.getNumberOfPages();
+                for (let i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+
+                    doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+                    doc.rect(0, 0, pageWidth, 22, 'F');
+                    
+                    doc.setFontSize(16).setFont('helvetica', 'bold');
+                    doc.setTextColor(255, 255, 255);
+                    doc.text('Supplier Visit - Minutes of Meeting', pageMargin, 15);
+                    
+                    doc.setFontSize(10).setFont('helvetica', 'normal');
+                    const headerDetails = `${details.supplierName || 'N/A'}  |  ${details.date || 'N/A'}`;
+                    doc.text(headerDetails, pageWidth - pageMargin, 15, { align: 'right' });
+
+                    doc.setFontSize(8).setFont('helvetica', 'normal').setTextColor(grayColor[0], grayColor[1], grayColor[2]);
+                    doc.text(`Report Generated: ${new Date().toLocaleDateString()}`, pageMargin, doc.internal.pageSize.getHeight() - 10);
+                    const pageText = `Page ${i} of ${pageCount}`;
+                    doc.text(pageText, pageWidth - pageMargin, doc.internal.pageSize.getHeight() - 10, { align: 'right' });
+                }
+            };
+            
+            const addSection = (title, options = {}) => {
+                const pageHeight = doc.internal.pageSize.getHeight();
+                if (yPos > pageHeight - (options.checkNext || 40)) { 
+                    doc.addPage(); 
+                    yPos = 30; 
+                }
+                doc.setFontSize(12).setFont('helvetica', 'bold').setTextColor(fontColor[0], fontColor[1], fontColor[2]);
+                doc.setFillColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+                doc.rect(pageMargin, yPos, 4, 6, 'F');
+                doc.text(title, pageMargin + 7, yPos + 4.5);
+                yPos += 12;
+            };
+
+            const drawGaugeInPdf = (x, y) => {
+                const totalScore = (parseInt(performance.scoreField) || 0) + (parseInt(performance.scoreChannel) || 0) + (parseInt(performance.scoreDelivery) || 0) + (parseInt(performance.scoreNpd) || 0);
+                let scoreInfo = {};
+                if (totalScore > 549) scoreInfo = { caption: 'High Performer', color: [16, 185, 129] };
+                else if (totalScore > 399) scoreInfo = { caption: 'Moderate Performer', color: [245, 158, 11] };
+                else if (totalScore > 299) scoreInfo = { caption: 'Low Performer', color: [59, 130, 246] };
+                else scoreInfo = { caption: 'Poor Performer', color: [239, 68, 68] };
+
+                const radius = 18;
+                const angle = (totalScore / 600) * 360;
+                
+                doc.setLineWidth(7);
+                doc.setDrawColor(236, 240, 241);
+                doc.circle(x, y, radius, 'S');
+
+                doc.setLineWidth(7);
+                doc.setDrawColor(scoreInfo.color[0], scoreInfo.color[1], scoreInfo.color[2]);
+                doc.setLineCap('round');
+
+                const steps = Math.max(1, Math.floor(angle));
+                for (let i = 0; i < steps; i++) {
+                    const startAngle = (i - 90) * (Math.PI / 180);
+                    const endAngle = ((i + 1.1) - 90) * (Math.PI / 180);
+                    const startX = x + radius * Math.cos(startAngle);
+                    const startY = y + radius * Math.sin(startAngle);
+                    const endX = x + radius * Math.cos(endAngle);
+                    const endY = y + radius * Math.sin(endAngle);
+                    doc.line(startX, startY, endX, endY);
+                }
+
+                doc.setFontSize(18).setFont('helvetica', 'bold').setTextColor(fontColor[0], fontColor[1], fontColor[2]);
+                doc.text(totalScore.toString(), x, y + 2, { align: 'center' });
+                doc.setFontSize(8).setFont('helvetica', 'bold').setTextColor(scoreInfo.color[0], scoreInfo.color[1], scoreInfo.color[2]);
+                doc.text(scoreInfo.caption, x, y + 7, { align: 'center' });
+            };
+            
+            // --- PAGE 1: SUMMARY ---
+            yPos = 30;
+            addSection('Meeting & Supplier Details');
+            doc.autoTable({
+                startY: yPos, theme: 'grid', styles: { fontSize: 9, cellPadding: 2.5, textColor: fontColor },
+                columnStyles: { 0: { fontStyle: 'bold', cellWidth: 40, fillColor: lightGrayColor } },
+                body: [
+                    ['Supplier Name:', details.supplierName], ['Supplier Code:', details.supplierCode],
+                    ['Date & Time:', `${details.date} at ${details.time}`], ['Location:', details.location],
+                    ['Purpose of Visit:', { content: details.purpose, styles: { cellWidth: 'auto' } }]
+                ]
+            });
+            yPos = doc.autoTable.previous.finalY + 12;
+            
+            addSection('Supplier Performance Scorecard');
+            const scoreTableX = pageMargin;
+            const gaugeX = 155;
+            doc.autoTable({
+                startY: yPos, tableWidth: 110, margin: { left: scoreTableX }, theme: 'striped',
+                headStyles: { fillColor: primaryColor, fontSize: 10 }, styles: { fontSize: 9, cellPadding: 2.5 },
+                head: [['Performance Pillar', 'Score']],
+                body: [
+                    ['Field Performance (200)', performance.scoreField],
+                    ['Channel Management (200)', performance.scoreChannel],
+                    ['Delivery & Capability (100)', performance.scoreDelivery],
+                    ['NPD Performance (100)', performance.scoreNpd],
+                ]
+            });
+            const tableHeight = doc.autoTable.previous.finalY - yPos;
+            const gaugeY = yPos + tableHeight / 2;
+            drawGaugeInPdf(gaugeX, gaugeY);
+            yPos = doc.autoTable.previous.finalY + 12;
+
+            addSection('Attendees', { checkNext: 40 });
+            const attendeeData = attendees.filter(a => a.name.trim()).map(a => [a.name, a.designation, a.side]);
+            if (attendeeData.length > 0) {
+                doc.autoTable({
+                    startY: yPos, head: [['Name', 'Designation', 'Side']], body: attendeeData,
+                    theme: 'striped', headStyles: { fillColor: primaryColor, fontSize: 10 },
+                    styles: { fontSize: 9, cellPadding: 2.5 }
+                });
+                yPos = doc.autoTable.previous.finalY + 12;
+            } else {
+                doc.setFontSize(9).setFont('helvetica', 'italic').text('No attendees listed.', pageMargin, yPos);
+                yPos += 8;
+            }
+
+            const addNotesSection = (title, text, options={}) => {
+                const pageHeight = doc.internal.pageSize.getHeight();
+                const splitText = doc.splitTextToSize(text || 'N/A', pageWidth - (pageMargin * 2));
+                const textHeight = (splitText.length * 4) + 24;
+                if (yPos > pageHeight - textHeight) { doc.addPage(); yPos = 30; }
+
+                addSection(title, options);
+                doc.setFontSize(9).setFont('helvetica', 'normal').setTextColor(fontColor[0], fontColor[1], fontColor[2]);
+                doc.text(splitText, pageMargin, yPos);
+                yPos += (splitText.length * 4) + 12;
+            };
+            addNotesSection('Summary', notes.summary);
+            
+            // --- SUBSEQUENT PAGES: OBSERVATIONS ---
+            const validObservations = observations.filter(o => o.problem.trim() || o.observation.trim());
+
+            if (validObservations.length > 0) {
+                for (const [index, obs] of validObservations.entries()) {
+                    doc.addPage();
+                    yPos = 30;
+                    
+                    addSection(`Observation Point #${index + 1}`);
+
+                    doc.autoTable({
+                        startY: yPos, theme: 'grid', styles: { fontSize: 9, cellPadding: 2.5, valign: 'middle' },
+                        columnStyles: { 0: { fontStyle: 'bold', cellWidth: 35, fillColor: lightGrayColor } },
+                        body: [
+                            ['Problem:', obs.problem], ['Observation:', obs.observation], ['Action Plan:', obs.action],
+                            ['Owner:', obs.responsibility], ['Target Date:', obs.targetDate], ['Status:', obs.status]
+                        ],
+                        didDrawCell: (data) => {
+                            if(data.column.index === 1 && data.row.index === 5) {
+                                const statusColors = { 'Green': [16, 185, 129], 'Yellow': [245, 158, 11], 'Red': [239, 68, 68] };
+                                const color = statusColors[data.cell.text[0]];
+                                if (color) {
+                                    doc.setFillColor(color[0], color[1], color[2]);
+                                    doc.setTextColor(255,255,255);
+                                    doc.setFont('helvetica', 'bold');
+                                }
+                            }
+                        }
+                    });
+                    yPos = doc.autoTable.previous.finalY + 10;
+
+                    if (obs.images && obs.images.length > 0) {
+                        addSection('Attachments');
+                        let xPos = pageMargin;
+                        for(const img of obs.images) {
+                            const imgDim = { w: 55, h: 55 };
+                            if (xPos + imgDim.w > pageWidth - pageMargin) { xPos = pageMargin; yPos += imgDim.h + 5; }
+                            if (yPos + imgDim.h > doc.internal.pageSize.getHeight() - 20) { 
+                                doc.addPage(); 
+                                yPos = 30;
+                                addSection(`Observation Point #${index + 1} (continued)`);
+                                xPos = pageMargin;
+                            }
+                            try { doc.addImage(img.data, 'JPEG', xPos, yPos, imgDim.w, imgDim.h); } 
+                            catch(e) { console.error("Could not add image to PDF", e); }
+                            xPos += imgDim.w + 5;
+                        }
+                    }
+                }
+            }
+
+            // --- FINAL PAGE: ADDITIONAL NOTES (if any) ---
+            if(notes.notes && notes.notes.trim()) {
+                doc.addPage();
+                yPos = 30;
+                addNotesSection('Additional Notes', notes.notes);
+            }
+
+            addHeaderFooter();
+            doc.save(`MoM_${details.supplierName || 'Supplier'}_${details.date}.pdf`);
+        }
+
+        function debounce(func, delay) {
+            let timeout;
+            return function(...args) { clearTimeout(timeout); timeout = setTimeout(() => func.apply(this, args), delay); };
+        }
+
+        init();
+    });
+    </script>
+</body>
+</html>
+
