@@ -16,7 +16,7 @@ export const getSuppliers = async (): Promise<Supplier[]> => {
     .order('name');
 
   if (error) {
-    console.error('Error fetching suppliers:', error);
+    console.warn('Error fetching suppliers:', error);
     return [];
   }
   return data || [];
@@ -52,7 +52,7 @@ export const getMeetingRecords = async (): Promise<MeetingRecord[]> => {
     .order('date', { ascending: false });
 
   if (error) {
-    console.error('Error fetching records:', error);
+    console.warn('Error fetching records:', error);
     return [];
   }
 

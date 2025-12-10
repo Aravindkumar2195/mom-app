@@ -54,26 +54,30 @@ export const CreateMomFlow: React.FC<CreateMomFlowProps> = ({ onComplete, initia
   const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
 
   // --- Effects ---
+  // --- Effects ---
   useEffect(() => {
-    const sups = getSuppliers();
-    setExistingSuppliers(sups);
+    const fetchSuppliers = async () => {
+      const sups = await getSuppliers();
+      setExistingSuppliers(sups);
 
-    if (initialData) {
-      // Find and set the selected supplier
-      const found = sups.find(s => s.id === initialData.supplierId);
-      if (found) {
-        setSelectedSupplier(found);
-      } else {
-        // Fallback if not found in list, reconstruct minimal supplier
-        setSelectedSupplier({
-          id: initialData.supplierId,
-          name: initialData.supplierName,
-          code: initialData.supplierCode,
-          location: '',
-          contactPerson: ''
-        });
+      if (initialData) {
+        // Find and set the selected supplier
+        const found = sups.find(s => s.id === initialData.supplierId);
+        if (found) {
+          setSelectedSupplier(found);
+        } else {
+          // Fallback if not found in list, reconstruct minimal supplier
+          setSelectedSupplier({
+            id: initialData.supplierId,
+            name: initialData.supplierName,
+            code: initialData.supplierCode,
+            location: '',
+            contactPerson: ''
+          });
+        }
       }
-    }
+    };
+    fetchSuppliers();
   }, [initialData]);
 
   // --- Handlers ---
@@ -98,11 +102,12 @@ export const CreateMomFlow: React.FC<CreateMomFlowProps> = ({ onComplete, initia
     setSearchTerm('');
   };
 
-  const handleCreateSupplier = () => {
+  const handleCreateSupplier = async () => {
     if (!newSupplierForm.name || !newSupplierForm.code) return;
     const newSup: Supplier = { ...newSupplierForm, id: crypto.randomUUID() };
-    saveSupplier(newSup);
-    setExistingSuppliers(getSuppliers());
+    await saveSupplier(newSup);
+    const sups = await getSuppliers();
+    setExistingSuppliers(sups);
     setSelectedSupplier(newSup);
     setIsNewSupplier(false);
   };

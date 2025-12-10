@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@capacitor/core": "^8.0.0",
     "@google/genai": "^1.32.0",
     "@supabase/supabase-js": "^2.87.1",
     "framer-motion": "^12.23.26",
@@ -20,6 +21,8 @@
     "recharts": "^3.5.1"
   },
   "devDependencies": {
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/cli": "^8.0.0",
     "@types/node": "^22.14.0",
     "@vitejs/plugin-react": "^5.0.0",
     "typescript": "~5.8.2",
