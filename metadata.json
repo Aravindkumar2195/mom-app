@@ -1,0 +1,7 @@
+{
+  "name": "AutoMoM: Supplier Visits",
+  "description": "Professional Minutes of Meeting recorder for automobile supplier visits with AI-powered observation polishing and automated HTML reporting.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
